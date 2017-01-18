@@ -1,0 +1,17 @@
+{
+  "name": "MultiRoomJS-server",
+  "version": "1.0.0",
+  "description": "Listen your music everywhere in your house",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.14.0",
+    "socket.io": "^1.7.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "RanfDev",
+  "license": "MIT"
+}
