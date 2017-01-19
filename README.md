@@ -21,7 +21,7 @@ That folder must not contain other folders and must contain only music files.
 
 ### Start the server
 <a name="start"></a>
-Type `npm start` to start the server
+Type `npm server.js` to start the server
 
 ### Connect and listen
 <a name="connect">
