@@ -1,4 +1,2 @@
-# Ignore bower_components and node_modules
+# Ignore node_modules
 /node_modules/*
-
-/client/bower_components/*
