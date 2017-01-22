@@ -1,56 +1,50 @@
+// Require dependencies
 var express = require('express');
 var app = express();
 var fs = require('fs');
 var server = require('http').Server(app);
+// Start socket.io server using express
 var io = require('socket.io')(server);
+// Import config
 var config = require('./config.json');
 var musicFolder = config.musicFolder;
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  next();
-});
-app.use(express.static('client'));
-app.use(express.static(musicFolder));
-// Add headers
-// app.use(function (req, res, next) {
-//
-//     // Website you wish to allow to connect
-//     res.setHeader('Access-Control-Allow-Origin', '*');
-//
-//     // // Request methods you wish to allow
-//     // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT');
-//
-//     // Request headers you wish to allow
-//     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-//
-//     // // Set to true if you need the website to include cookies in the requests sent
-//     // // to the API (e.g. in case you use sessions)
-//     // res.setHeader('Access-Control-Allow-Credentials', true);
-//
-//     // Pass to next layer of middleware
-//     next();
-// });
-server.listen(config.serverPort);
 
+// app.use(function(req, res, next) {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header("Access-Control-Allow-Headers", "X-Requested-With");
+//   next();
+// });
+
+// Set client folder as static resource
+app.use(express.static('client'));
+// Set musicFolder as static resource
+app.use(express.static(musicFolder));
+
+// Listen on the port described in the config.json
+server.listen(config.serverPort);
+console.log('started at :', config.serverPort);
+
+// Set some variables
 var songs;
 var player;
-var delays = [];
-var synced = 0;
-var precision = 0.5;
+var ready;
 
+// Read available songs in the musicFolder
 fs.readdir(musicFolder, function(err, files) {
   songs = files;
 });
 
-var ready;
+// Listen for connection
 io.on('connection', function(socket) {
-    synced = 0;
+    console.log('new device connected');
+    // Set ready clients to 0
+    ready = 0;
+    // Send song to connected clients
     sendSong();
-    function ding() {
-      socket.emit('ding');
-    }
-    console.log('connected');
+
+    // Listen for socket events.
+    // "Req" stand for "request".
+
     socket.on('syncReq', function(ms) {
       sync(ms);
     });
@@ -68,6 +62,7 @@ io.on('connection', function(socket) {
       socket.emit('dong');
     });
     socket.on('pauseReq', function() {
+        // If player isn't already paused, pause it
         if (player.status !== 'paused') {
             pause();
         } else {
@@ -75,12 +70,16 @@ io.on('connection', function(socket) {
         }
 
     });
+    // Code to be executed when a client finished loading a song
     socket.on('loaded', function() {
         ready++;
-        console.log('pronti', ready, 'totali', io.sockets.server.eio.clientsCount);
+        console.log('ready', ready, 'of', io.sockets.server.eio.clientsCount);
+        // Check if all clients are ready
         if (ready == io.sockets.server.eio.clientsCount) {
+          // Reset the ready variable
           ready = 0;
-            console.log('started perfectly');
+            console.log('started all perfectly');
+            // Finally play the song
             play();
         }
     });
@@ -88,7 +87,12 @@ io.on('connection', function(socket) {
 
 });
 
+function ding() {
+  socket.emit('ding');
+}
+
 function randomSong() {
+    // Return a random song
     return songs[parseInt(Math.random() * songs.length)];
 }
 
@@ -96,7 +100,7 @@ function play() {
     io.emit('play');
     player.status = 'playing';
     console.log(player.status);
-    // sync();
+    sync();
 }
 
 function pause() {
@@ -106,19 +110,11 @@ function pause() {
 }
 
 function sendSong() {
-  ready = 0;
-  if (typeof player != 'undefined') {
-    console.log('loading preloaded');
-    player.current = player.next;
-    player.next = randomSong();
-  } else {
     player = {
         current: randomSong(),
         time: 0,
         status: 'paused',
-        next: randomSong()
     };
-  }
   io.emit('playerData', player);
 }
 
