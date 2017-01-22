@@ -11,7 +11,7 @@ A simple nodejs server that stream your favourite music.
 Just google it. It is pre-installed in most linux distros.
 #### Download the files
 It's really easy, just download the repository by cloning it or downloading the zip.
-Then navigate to the folder you have downloaded/extracted the files, open a terminal and type `npm install`.
+Then navigate to the folder you have downloaded/extracted the files, open a terminal and type `npm install` and `bower install`.
 
 ### Configure the server
 Open the file `config.json` and change `your-music-folder` with your folder that contains all your music.
