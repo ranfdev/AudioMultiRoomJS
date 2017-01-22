@@ -10,7 +10,7 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
   next();
 });
-app.use(express.static('public'));
+app.use(express.static('client'));
 app.use(express.static(musicFolder));
 // Add headers
 // app.use(function (req, res, next) {
@@ -96,7 +96,7 @@ function play() {
     io.emit('play');
     player.status = 'playing';
     console.log(player.status);
-    sync();
+    // sync();
 }
 
 function pause() {
@@ -123,5 +123,6 @@ function sendSong() {
 }
 
 function sync(ms) {
+  console.log('sync', ms);
   io.emit('sync', ms);
 }
