@@ -8,10 +8,15 @@ A simple nodejs server that stream your favourite music.
 - [connect and listen!](#connect-and-listen)
 
 ### Requirements
-You need:
+The server can be run in linux,mac os and windows.
+The client can be used everywhere there is a browser that supports html5 (every latest browser does).
+
+To run the server you also need:
 * Nodejs
 * Npm
 * Bower
+
+
 
 ### Install the server
 It's really easy, just download the repository by cloning it or downloading the zip.
