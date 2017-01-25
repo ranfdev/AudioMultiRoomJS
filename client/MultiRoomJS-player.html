@@ -100,6 +100,7 @@
                 </a>
 
 
+
               </div>
             <!-- </template> -->
             <!-- <template is="dom-if" if="{{!connected}}">
@@ -206,8 +207,8 @@
                   // console.log(ctx);
                   ctx.loadSong(data.current);
                   setTimeout(function() {
-                      ctx.preloadSong(data.next);
-                  }, 10000);
+                    ctx.req('syncReq');
+                  }, 2000);
 
               });
           };
@@ -228,7 +229,7 @@
               ctx.music = currentSong;
           };
           ctx.play = function() {
-              ctx.changeColor('#3f51b5');
+              ctx.changeColor('#1565c0');
               ctx.playAndPause = 'av:pause';
 
               sound.play();
@@ -259,12 +260,12 @@
           // ctx.connected = function() {
           //
           // };
-          ctx.preloadSong = function(nextSong) {
-              new Howl({
-                  src: host + '/' + nextSong,
-                  autoplay: false
-              });
-          };
+          // ctx.preloadSong = function(nextSong) {
+          //     new Howl({
+          //         src: host + '/' + nextSong,
+          //         autoplay: false
+          //     });
+          // };
           ctx.sync = function(ms) {
               // ctx.ding();
               console.log('received sync', ms);

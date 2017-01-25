@@ -1,0 +1,26 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+<link rel="import" href="shared-styles.html">
+<dom-module id="my-view2">
+  <template>
+    <style include="shared-styles"></style>
+      <div class="container">
+        <paper-card heading="Settings">
+          <div class="card-content">
+            <paper-input label="music folder"></paper-input>
+            <paper-input label="host port"></paper-input>
+          </div>
+          <div class="card-actions">
+            <paper-button>save</paper-button>
+          </div>
+        </paper-card>
+      </div>
+
+
+  </template>
+  <script type="text/javascript">
+    Polymer({
+      is: 'my-view2'
+    });
+  </script>
+</dom-module>

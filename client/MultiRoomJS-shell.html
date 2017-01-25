@@ -1,0 +1,56 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="MultiRoomJS-player.html">
+<link rel="import" href="bower_components/paper-styles/typography.html">
+<link rel="import" href="bower_components/paper-styles/color.html">
+<link rel="import" href="bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="bower_components/paper-item/paper-item.html">
+<link rel="import" href="bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="bower_components/app-route/app-route.html">
+<link rel="import" href="bower_components/app-route/app-location.html">
+<link rel="import" href="bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="my-view1.html">
+<link rel="import" href="my-view2.html">
+<dom-module is="multiroomjs-shell">
+    <style is="custom-style">
+         :host {
+            @apply(--paper-font-common-base);
+        }
+
+        app-toolbar {
+            background-color: var(--paper-blue-800);
+            color: white
+        }
+    </style>
+    <template>
+    <!-- <h1>Ciao</h1> -->
+    <app-toolbar>
+      <div main-title>MultiRoomJS</div>
+      <paper-menu-button vertical-align="top" horizontal-align="right">
+        <paper-icon-button class="dropdown-trigger" icon="more-vert"></paper-icon-button>
+        <paper-menu class="dropdown-content">
+          <paper-item><a href="/#/my-view2">Settings</a></paper-item>
+          <paper-item>Code</paper-item>
+          <paper-item>About</paper-item>
+        </paper-menu>
+      </paper-menu-button>
+    </app-toolbar>
+
+    <app-location use-hash-as-path route="{{route}}"></app-location>
+<app-route
+    route="{{route}}"
+    pattern="/:page"
+    data="{{data}}">
+</app-route>
+<iron-pages selected="[[data.page]]" attr-for-selected="name" fallback-selection="my-view1">
+  <my-view1 name="my-view1"></my-view1>
+  <my-view2 name="my-view2"></my-view2>
+</iron-pages>
+  </template>
+    <script type="text/javascript">
+        Polymer({
+            is: 'multiroomjs-shell'
+        });
+    </script>
+</dom-module>

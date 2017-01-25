@@ -1,6 +1,7 @@
 // Require dependencies
 var express = require('express');
 var app = express();
+var opener = require('opener');
 var fs = require('fs');
 var server = require('http').Server(app);
 // Start socket.io server using express
@@ -22,6 +23,7 @@ app.use(express.static(musicFolder));
 
 // Listen on the port described in the config.json
 server.listen(config.serverPort);
+opener('http://localhost:' + config.serverPort + '/#/my-view1');
 console.log('started at :', config.serverPort);
 
 // Set some variables
@@ -100,7 +102,7 @@ function play() {
     io.emit('play');
     player.status = 'playing';
     console.log(player.status);
-    sync();
+
 }
 
 function pause() {
