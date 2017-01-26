@@ -18,12 +18,24 @@ var musicFolder = config.musicFolder;
 
 // Set client folder as static resource
 app.use(express.static('client'));
-// Set musicFolder as static resource
-app.use(express.static(musicFolder));
+
+// Use music folder and play music if the folder is available
+if (config.musicFolder != 'your-music-folder') {
+  // Set musicFolder as static resource
+  app.use(express.static(musicFolder));
+  // Read available songs in the musicFolder
+  fs.readdir(musicFolder, function(err, files) {
+    songs = files;
+  });
+  // Open player page
+  opener('http://localhost:' + config.serverPort + '/#/my-view1');
+} else {
+  // Open settings page
+  opener('http://localhost:' + config.serverPort + '/#/my-view2');
+}
 
 // Listen on the port described in the config.json
 server.listen(config.serverPort);
-opener('http://localhost:' + config.serverPort + '/#/my-view1');
 console.log('started at :', config.serverPort);
 
 // Set some variables
@@ -31,10 +43,8 @@ var songs;
 var player;
 var ready;
 
-// Read available songs in the musicFolder
-fs.readdir(musicFolder, function(err, files) {
-  songs = files;
-});
+
+
 
 // Listen for connection
 io.on('connection', function(socket) {
