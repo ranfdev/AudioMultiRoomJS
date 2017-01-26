@@ -8,20 +8,51 @@
       <div class="container">
         <paper-card heading="Settings">
           <div class="card-content">
-            <paper-input label="music folder"></paper-input>
-            <paper-input label="host port"></paper-input>
+            <paper-input value="{{config.musicFolder}}" label="music folder"></paper-input>
+            <paper-input value="{{config.serverPort}}" label="host port"></paper-input>
           </div>
           <div class="card-actions">
-            <paper-button>save</paper-button>
+            <paper-button on-click="save">save</paper-button>
           </div>
         </paper-card>
       </div>
 
-
+  <iron-ajax
+    auto
+    method="get"
+    url="[[configUrl]]"
+    handle-as="json"
+    last-response="{{config}}"
+    on-response="cl"
+  ></iron-ajax>
+  <iron-ajax
+    id="post"
+    method="POST"
+    body="{{body}}"
+    url="[[configUrl]]"
+  ></iron-ajax>
   </template>
   <script type="text/javascript">
     Polymer({
-      is: 'my-view2'
+      is: 'my-view2',
+      properties: {
+        // config: {
+        //   value: null
+        // },
+        configUrl: {
+          value: window.location.origin + '/config'
+        }
+      },
+      cl: function (c) {
+        console.log(c)
+      },
+      save: function () {
+        console.log('gg');
+        this.$.post.generateRequest();
+      }
+      // loadconfig: function (response) {
+      //   console.log(response);
+      // }
     });
   </script>
 </dom-module>

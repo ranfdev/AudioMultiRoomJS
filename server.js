@@ -18,7 +18,12 @@ var musicFolder = config.musicFolder;
 
 // Set client folder as static resource
 app.use(express.static('client'));
-
+app.get('/config', function(req,res) {
+  res.send(config)
+});
+app.post('/config', function(req,res) {
+  console.log(req);
+});
 // Use music folder and play music if the folder is available
 if (config.musicFolder != 'your-music-folder') {
   // Set musicFolder as static resource
@@ -29,6 +34,8 @@ if (config.musicFolder != 'your-music-folder') {
   });
   // Open player page
   opener('http://localhost:' + config.serverPort + '/#/my-view1');
+  io.on('connection', onConnection);
+
 } else {
   // Open settings page
   opener('http://localhost:' + config.serverPort + '/#/my-view2');
@@ -47,90 +54,91 @@ var ready;
 
 
 // Listen for connection
-io.on('connection', function(socket) {
-    console.log('new device connected');
-    // Set ready clients to 0
-    ready = 0;
-    // Send song to connected clients
+function onConnection(socket) {
+  console.log('new device connected');
+  // Set ready clients to 0
+  ready = 0;
+  // Send song to connected clients
+  sendSong();
+
+  // Listen for socket events.
+  // "Req" stand for "request".
+
+  socket.on('syncReq', function(ms) {
+    sync(ms);
+  });
+  socket.on('nextReq', function() {
     sendSong();
+  });
+  socket.on('restartReq', function() {
+      console.log('received restart req');
+      io.emit('restart');
+  });
+  socket.on('dingReq', function() {
+      ding();
+  });
+  socket.on('ding', function () {
+    socket.emit('dong');
+  });
+  socket.on('pauseReq', function() {
+      // If player isn't already paused, pause it
+      if (player.status !== 'paused') {
+          pause();
+      } else {
+          play();
+      }
 
-    // Listen for socket events.
-    // "Req" stand for "request".
-
-    socket.on('syncReq', function(ms) {
-      sync(ms);
-    });
-    socket.on('nextReq', function() {
-      sendSong();
-    });
-    socket.on('restartReq', function() {
-        console.log('received restart req');
-        io.emit('restart');
-    });
-    socket.on('dingReq', function() {
-        ding();
-    });
-    socket.on('ding', function () {
-      socket.emit('dong');
-    });
-    socket.on('pauseReq', function() {
-        // If player isn't already paused, pause it
-        if (player.status !== 'paused') {
-            pause();
-        } else {
-            play();
-        }
-
-    });
-    // Code to be executed when a client finished loading a song
-    socket.on('loaded', function() {
-        ready++;
-        console.log('ready', ready, 'of', io.sockets.server.eio.clientsCount);
-        // Check if all clients are ready
-        if (ready == io.sockets.server.eio.clientsCount) {
-          // Reset the ready variable
-          ready = 0;
-            console.log('started all perfectly');
-            // Finally play the song
-            play();
-        }
-    });
+  });
+  // Code to be executed when a client finished loading a song
+  socket.on('loaded', function() {
+      ready++;
+      console.log('ready', ready, 'of', io.sockets.server.eio.clientsCount);
+      // Check if all clients are ready
+      if (ready == io.sockets.server.eio.clientsCount) {
+        // Reset the ready variable
+        ready = 0;
+          console.log('started all perfectly');
+          // Finally play the song
+          play();
+      }
+  });
 
 
-});
-
-function ding() {
+  function ding() {
   socket.emit('ding');
-}
+  }
 
-function randomSong() {
+  function randomSong() {
     // Return a random song
     return songs[parseInt(Math.random() * songs.length)];
-}
+  }
 
-function play() {
+  function play() {
     io.emit('play');
     player.status = 'playing';
     console.log(player.status);
 
-}
+  }
 
-function pause() {
+  function pause() {
     io.emit('pause');
     player.status = 'paused';
     console.log(player.status);
-}
+  }
 
-function sendSong() {
+  function sendSong() {
     player = {
         current: randomSong(),
         time: 0,
         status: 'paused',
     };
   io.emit('playerData', player);
-}
+  }
 
-function sync(ms) {
+  function sync(ms) {
   console.log('sync', ms);
   io.emit('sync', ms);
+  }
+
+
 }
