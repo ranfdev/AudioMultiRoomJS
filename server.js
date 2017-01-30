@@ -7,7 +7,7 @@ var server = require('http').Server(app);
 // Start socket.io server using express
 var io = require('socket.io')(server);
 
-config = require('./config.json')
+config = require('./config.json');
 
 
 
@@ -140,8 +140,9 @@ function onConnection(socket) {
 
   function randomSong() {
     // Return a random song
+    console.log('SELECTING A RANDOM SONG');
     return songs[parseInt(Math.random() * songs.length)];
-    console.log('SELECTED A RANDOM SONG');
+
   }
 
   function play() {
@@ -159,7 +160,7 @@ function onConnection(socket) {
   }
 
   function sendSong() {
-      if (checkSongList() == true) {
+      if (checkSongList() === true) {
         console.log('SENDING SONG');
         player = {
           current: randomSong(),
@@ -167,18 +168,18 @@ function onConnection(socket) {
         };
         io.emit('playerData', player);
       } else {
-        console.log('FAILED TO LOAD SONGS')
+        console.log('FAILED TO LOAD SONGS');
       }
 
   }
 
   function calcRemainingTime(time) {
-    if (typeof onSongFinish != undefined) {
+    if (typeof onSongFinish !== undefined) {
       clearTimeout(onSongFinish);
     }
     var remainingTime = (time.duration - time.current)*1000;
     onSongFinish = setTimeout(sendSong,remainingTime);
-    console.log('NEXT SONG IN ' + remainingTime/1000 + 's')
+    console.log('NEXT SONG IN ' + remainingTime/1000 + 's');
   }
 
   function sync(ms) {
