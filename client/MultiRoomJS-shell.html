@@ -12,8 +12,9 @@
 <link rel="import" href="bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="my-view1.html">
 <link rel="import" href="my-view2.html">
+<link rel="import" href="shared-styles.html">
 <dom-module is="multiroomjs-shell">
-    <style is="custom-style">
+    <style is="custom-style" include="shared-styles">
          :host {
             @apply(--paper-font-common-base);
         }
@@ -31,8 +32,7 @@
         <paper-icon-button class="dropdown-trigger" icon="more-vert"></paper-icon-button>
         <paper-menu class="dropdown-content">
           <paper-item><a href="/#/my-view2">Settings</a></paper-item>
-          <paper-item>Code</paper-item>
-          <paper-item>About</paper-item>
+          <paper-item><a href="https://github.com/ranfdev/MultiRoomJS-server">Code</a></paper-item>
         </paper-menu>
       </paper-menu-button>
     </app-toolbar>
@@ -48,9 +48,85 @@
   <my-view2 name="my-view2"></my-view2>
 </iron-pages>
   </template>
+  <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+
     <script type="text/javascript">
         Polymer({
-            is: 'multiroomjs-shell'
+            is: 'multiroomjs-shell',
+            ready: function() {
+                var ctx = this;
+                var player = document.querySelector('multiroomjs-player');
+
+                ctx.time = {
+                        ding: null,
+                        dong: null,
+                        delay: null
+                };
+
+
+                ctx.req = function(what) {
+                      if (what == 'sync') {
+                        // time.current = sound.seek();
+                        // time.duration = sound.duration();
+                        ctx.socket.emit(what + 'Req', {
+                          current: sound.seek(),
+                          duration: sound.duration()
+                        });
+                        // console.log('req', what, data);
+                    } else {
+                      ctx.socket.emit(what + 'Req');
+                    }
+                };
+
+
+                ctx.ding = function() {
+                    ctx.time.ding = performance.now();
+                    ctx.socket.emit('ding');
+                };
+
+                ctx.connect = function(address) {
+                    console.log('connecting to', address);
+
+                    ctx.host = address;
+                    ctx.socket = io.connect(address);
+                    ctx.connected = true;
+                    // then
+
+                    ctx.socket.on('play', player.play);
+                    ctx.socket.on('pause', player.pause);
+                    ctx.socket.on('restart', function() {
+                        location.reload();
+                    });
+                    ctx.socket.on('sync', function(ms) {
+                        ctx.ding();
+                        player.sync(ms);
+                    });
+                    ctx.socket.on('ding', ctx.ding);
+                    ctx.socket.on('dong', function() {
+                        ctx.time.dong = performance.now();
+                        ctx.time.delay = (ctx.time.dong - ctx.time.ding) * 1.5 / 100;
+
+                    });
+                    ctx.socket.on('playerData', function(data) {
+                        if (typeof sound != 'undefined') {
+                            sound.stop();
+                        }
+
+                        player.loadSong(ctx.host + '/' + data.current);
+                        setTimeout(function() {
+                          ctx.req('syncReq');
+                        }, 2000);
+
+                    });
+
+
+                };
+
+
+            ctx.connect(window.location.origin);
+
+            }
+
         });
     </script>
 </dom-module>

@@ -8,51 +8,50 @@
       <div class="container">
         <paper-card heading="Settings">
           <div class="card-content">
-            <paper-input value="{{config.musicFolder}}" label="music folder"></paper-input>
-            <paper-input value="{{config.serverPort}}" label="host port"></paper-input>
+            <p>Here you can configure the server's settings. If you don't know what to set in the server port, skip it</p>
+            <paper-input auto-validate error-message="must start and finish with a /" pattern="^/.*/$" value="{{config.musicFolder}}" label="music folder"></paper-input>
+            <paper-input auto-validate error-message="accept only from 1028 to 9000" pattern="^[0-9]*" value="{{config.serverPort}}" label="server port"></paper-input>
           </div>
           <div class="card-actions">
-            <paper-button on-click="save">save</paper-button>
+            <paper-button on-click="sendConfig"><a href="/#/my-view1">Save</a></paper-button>
           </div>
         </paper-card>
       </div>
 
-  <iron-ajax
-    auto
+  <!-- <iron-ajax
+    id="ajax"
     method="get"
+    params="[[config]]"
     url="[[configUrl]]"
     handle-as="json"
-    last-response="{{config}}"
-    on-response="cl"
-  ></iron-ajax>
-  <iron-ajax
-    id="post"
-    method="POST"
-    body="{{body}}"
-    url="[[configUrl]]"
-  ></iron-ajax>
+    last-response="{{res}}"
+    on-response="check"
+  ></iron-ajax> -->
+
   </template>
   <script type="text/javascript">
     Polymer({
       is: 'my-view2',
       properties: {
-        // config: {
-        //   value: null
-        // },
+        config: {
+          value: {}
+        },
         configUrl: {
           value: window.location.origin + '/config'
         }
       },
-      cl: function (c) {
-        console.log(c)
+      check: function () {
+        if (this.res.data != undefined & this.res.data == 'error') {
+          console.log('Error in the configuration')
+        }
       },
-      save: function () {
-        console.log('gg');
-        this.$.post.generateRequest();
-      }
-      // loadconfig: function (response) {
-      //   console.log(response);
+      // save: function () {
+      //   console.log('gg');
+      //   this.$.ajax.generateRequest();
       // }
+      sendConfig: function () {
+        document.querySelector('multiroomjs-shell').socket.emit('config', this.config);
+      }
     });
   </script>
 </dom-module>

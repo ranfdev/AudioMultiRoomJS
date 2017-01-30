@@ -1,4 +1,1 @@
-{
-  "serverPort" : "3000",
-  "musicFolder" : "your-music-folder"
-}
+{"musicFolder":"your-music-folder","serverPort":"3000"}
