@@ -83,7 +83,10 @@
                     ctx.time.ding = performance.now();
                     ctx.socket.emit('ding');
                 };
-
+                ctx.autoDing = function (delay) {
+                  ctx.ding();
+                  setTimeout(autoDing,delay);
+                };
                 ctx.connect = function(address) {
                     console.log('connecting to', address);
 
@@ -101,6 +104,7 @@
                         ctx.ding();
                         player.sync(ms);
                     });
+                    ctx.autoDing(1000);
                     ctx.socket.on('ding', ctx.ding);
                     ctx.socket.on('dong', function() {
                         ctx.time.dong = performance.now();
