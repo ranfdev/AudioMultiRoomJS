@@ -41,8 +41,8 @@
         }
       },
       check: function () {
-        if (this.res.data != undefined & this.res.data == 'error') {
-          console.log('Error in the configuration')
+        if (this.res.data !== undefined & this.res.data == 'error') {
+          console.log('Error in the configuration');
         }
       },
       // save: function () {
@@ -50,7 +50,7 @@
       //   this.$.ajax.generateRequest();
       // }
       sendConfig: function () {
-        document.querySelector('multiroomjs-shell').socket.emit('config', this.config);
+        app.socket.emit('config', this.config);
       }
     });
   </script>

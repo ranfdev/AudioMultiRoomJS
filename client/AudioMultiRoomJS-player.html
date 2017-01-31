@@ -11,7 +11,7 @@
 <!-- <link rel="import" href="/bower_components/paper-dialog/paper-dialog.html"> -->
 <!-- <link rel="import" href="/bower_components/paper-input/paper-input.html"> -->
 <link rel="import" href="/bower_components/paper-styles/typography.html">
-<dom-module id="multiroomjs-player">
+<dom-module id="audiomultiroomjs-player">
   <template>
     <style>
 
@@ -83,7 +83,7 @@
 <script src="/bower_components/howler.js/dist/howler.min.js" charset="utf-8"></script>
   <script>
     Polymer({
-      is: 'multiroomjs-player',
+      is: 'audiomultiroomjs-player',
       properties: {
         prop1: {
           type: String,
@@ -107,8 +107,7 @@
       },
       ready: function () {
         var ctx = this;
-        pinuzzo = 'gg';
-        var shell = document.querySelector('multiroomjs-shell');
+        player = this;
         ctx.pause = function () {
           ctx.changeColor('darkGrey');
           ctx.playAndPause = 'av:play-arrow';
@@ -118,7 +117,7 @@
 
         ctx.sync = function(time) {
             console.log('received sync', time);
-            sound.seek(shell.time.delay + time);
+            sound.seek(app.time.delay + time);
         };
         ctx.loadSong = function(currentSong) {
             sound = new Howl({
@@ -126,14 +125,14 @@
                 autoplay: false,
                 autoSuspend: false,
                 onload: function() {
-                    shell.socket.emit('loaded');
+                    app.socket.emit('loaded');
                     console.log('ready');
                     ctx.set('song.time.duration', sound.duration());
                     ctx.timeSlider();
 
                 },
                 onplay: function() {
-                  shell.req('sync');
+                  app.req('sync');
                 }
             });
 
@@ -149,7 +148,7 @@
         ctx.seekSong = function() {
           console.log('down', ctx.song.time.current);
           sound.seek(ctx.song.time.current);
-          shell.req('sync');
+          app.req('sync');
         };
         ctx.changeColor = function(color) {
           ctx.$.placeholder.style.backgroundColor = color;
@@ -161,7 +160,7 @@
             console.log('playing');
         };
         ctx.tap = function(e) {
-            shell.req(e.currentTarget.id);
+            app.req(e.currentTarget.id);
         };
       }
 
