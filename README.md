@@ -1,6 +1,7 @@
-# MultiRoomJS-server BETA
-A simple nodejs server that stream your favourite music.
+# AudioMultiRoomJS BETA
+A simple nodejs server that sync your favourite music. It's easier than you think!
 ## How to:
+
 - [requirements](#requirements)
 - [install the server](#install-the-server)
 - [configure the server](#configure-the-server)
@@ -9,20 +10,20 @@ A simple nodejs server that stream your favourite music.
 
 ### Requirements
 The server can be run in linux,mac os and windows.
-The client can be used everywhere there is a browser that supports html5 (every latest browser does).
+The client can be used everywhere there is a browser that supports html5 and web components (every latest browser does).
 
-To run the server you also need:
+To run the server you need:
 * Nodejs
 * Npm
-* Bower
-
-
 
 ### Install the server
-It's really easy, just download the repository by cloning it or downloading the zip.
-Then navigate to the folder you have downloaded/extracted the files, open a terminal and type `npm install`. Then `cd` to the client folder and type `bower install`.
+It's really easy, just download the latest release from [here](https://github.com/ranfdev/AudioMultiRoomJS/releases).
+Then open a terminal and type `npm install downloaded-file`, where `downloaded-file` is the release you've just downloaded
 
 ### Configure the server
+##### Method 1 (easy)
+Use the settings page in the website
+##### Method 2 (hard/manual)
 Open the file `config.json` and change `your-music-folder` with your folder that contains all your music.
 That folder must not contain other folders and must contain only music files.
 
