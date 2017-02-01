@@ -1,10 +1,12 @@
 {
-  "name": "MultiRoomJS-server",
+  "name": "AudioMultiRoomJS",
   "version": "1.0.0",
   "description": "Listen your music everywhere in your house",
   "main": "server.js",
   "dependencies": {
     "express": "^4.14.0",
+    "open": "0.0.5",
+    "opener": "^1.4.2",
     "socket.io": "^1.7.2"
   },
   "devDependencies": {},
