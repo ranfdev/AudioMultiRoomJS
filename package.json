@@ -1,5 +1,5 @@
 {
-  "name": "MultiRoomJS-server",
+  "name": "AudioMultiRoomJS",
   "version": "1.0.0",
   "description": "Listen your music everywhere in your house",
   "main": "server.js",
