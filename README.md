@@ -15,10 +15,11 @@ The client can be used everywhere there is a browser that supports html5 and web
 To run the server you need:
 * Nodejs
 * Npm
+* Bower
 
 ### Install the server
-It's really easy, just download the latest release from [here](https://github.com/ranfdev/AudioMultiRoomJS/releases).
-Then open a terminal and type `npm install downloaded-file`, where `downloaded-file` is the release you've just downloaded
+It's really easy, just download this repository.
+Then open a terminal in the folder you have downloaded the repository and type `npm install && cd client && bower i`.
 
 ### Configure the server
 ##### Method 1 (easy)
