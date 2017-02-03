@@ -15,7 +15,6 @@ The client can be used everywhere there is a browser that supports html5 and web
 To run the server you need:
 * Nodejs
 * Npm
-* Bower
 
 ### Install the server
 It's really easy, just download the latest release from [here](https://github.com/ranfdev/AudioMultiRoomJS/releases/latest).
