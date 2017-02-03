@@ -9,10 +9,14 @@
     "opener": "^1.4.2",
     "socket.io": "^1.7.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "bower": "^1.8.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "postinstall": "npm run build",
+    "build": "cd client/ && bower i && echo 'installed'"
   },
   "author": "RanfDev",
   "license": "MIT"
