@@ -20,7 +20,8 @@ To run the server you need:
 It's really easy, just download the latest release from [here](https://github.com/ranfdev/AudioMultiRoomJS/releases/latest).
 Then open a terminal and type `npm install downloaded-file`, where `downloaded-file` is the release you've just downloaded
 
-
+### Start the server
+In the terminal, navigate where you installed the server, by typing `cd ./node_modules/AudioMultiRoomJS/`. Now type `node server.js` to start the server
 
 ### Configure the server
 ##### Method 1 (easy)
@@ -29,8 +30,7 @@ Use the settings page in the website
 Open the file `config.json` and change `your-music-folder` with your folder that contains all your music.
 That folder must not contain other folders and must contain only music files.
 
-### Start the server
-Type `node server.js` to start the server
+
 
 ### Connect and listen
 Open any browser you want on the device you want to listen the music and go to http://your-server-ip:3000.
