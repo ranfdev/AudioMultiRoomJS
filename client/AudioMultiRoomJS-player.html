@@ -12,7 +12,7 @@
 <!-- <link rel="import" href="/bower_components/paper-input/paper-input.html"> -->
 <link rel="import" href="/bower_components/paper-styles/typography.html">
 <dom-module id="audiomultiroomjs-player">
-  <template>
+    <template>
     <style>
 
       .placeholder {
@@ -62,12 +62,12 @@
       }
     </style>
 
-      <paper-card elevation="5" heading="[[song.title]]" class="player">
+      <paper-card elevation="5" heading="[[songTitle]]" class="player">
           <div id="placeholder" class="placeholder flex center">
             <iron-icon class="white big" icon="av:library-music"></iron-icon>
           </div>
             <div class="card-content">
-              <paper-slider id="timeSlider" on-change="seekSong" pin min="0" value="{{song.time.current}}" max="[[song.time.duration]]"></paper-slider>
+              <paper-slider id="timeSlider" on-change="seekSong" secondary-progress="[[songBuffered]]" pin min="0" value="{{songTime}}" max="{{songDuration}}"></paper-slider>
             </div>
               <div class="card-actions flex sp-around">
                 <paper-icon-button id="sync" on-click="tap" icon="notification:sync"></paper-icon-button>
@@ -80,90 +80,84 @@
 
       </paper-card>
   </template>
-<script src="/bower_components/howler.js/dist/howler.min.js" charset="utf-8"></script>
-  <script>
-    Polymer({
-      is: 'audiomultiroomjs-player',
-      properties: {
-        prop1: {
-          type: String,
-          value: 'MultiRoomJS-client-app',
-        },
-        song: {
-            type: Object,
-            value: {
-              title: 'Loading...',
-              time: {
-                duration: 100,
-                current: 0}
-              }
-        },
-        connected: {
-            value: false
-        },
-        playAndPause: {
-          value: 'av:pause'
-        }
-      },
-      ready: function () {
-        var ctx = this;
-        player = this;
-        ctx.pause = function () {
-          ctx.changeColor('darkGrey');
-          ctx.playAndPause = 'av:play-arrow';
-          sound.pause();
-          console.log('paused');
-        };
-
-        ctx.sync = function(time) {
-            console.log('received sync', time);
-            sound.seek(app.time.delay + time);
-        };
-        ctx.loadSong = function(currentSong) {
-            sound = new Howl({
-                src: currentSong,
-                autoplay: false,
-                autoSuspend: false,
-                onload: function() {
-                    app.socket.emit('loaded');
-                    console.log('ready');
-                    ctx.set('song.time.duration', sound.duration());
-                    ctx.timeSlider();
-
+    <script>
+        Polymer({
+            is: 'audiomultiroomjs-player',
+            properties: {
+                prop1: {
+                    type: String,
+                    value: 'MultiRoomJS-client-app',
                 },
-                onplay: function() {
-                  app.req('sync');
+                songBuffered: {
+                    value: 0
+                },
+                connected: {
+                    value: false
+                },
+                playAndPause: {
+                    value: 'av:play-arrow'
                 }
-            });
+            },
+            ready: function() {
+                var ctx = this;
+                player = this;
+                ctx.sound = new Audio();
+                ctx.sound.onloadeddata = function() {
+                    console.log('loaded');
+                    app.socket.emit('loaded');
+                    ctx.songDuration = ctx.sound.duration;
+                    ctx.timeSlider();
+                };
+                ctx.sound.onplay = function() {
+                    ctx.changeColor('#1565c0');
+                    ctx.playAndPause = 'av:pause';
+                    app.req('sync');
+                    console.log('playing');
+                };
+                ctx.sound.onpause = function() {
+                  ctx.changeColor('darkGrey');
+                  ctx.playAndPause = 'av:play-arrow';
+                  console.log('paused');
+                };
+                ctx.pause = function() {
+                    ctx.sound.pause();
+                };
+                ctx.sync = function(time) {
+                    console.log('received sync', time);
+                    ctx.sound.currentTime = app.time.delay + time;
+                };
+                ctx.loadSong = function(currentSong) {
+                    ctx.sound.src = currentSong;
+                    ctx.songTitle = currentSong.replace(window.location.origin + '/', '');
+                    ctx.songTitle = ctx.songTitle.replace('.mp3', '');
+                };
+                ctx.timeSlider = function() {
+                    if (ctx.$.timeSlider.pointerDown === false) {
+                        ctx.songTime = ctx.sound.currentTime;
+                        ctx.songBuffered = ctx.sound.buffered.end(0);
+                    }
+                    setTimeout(ctx.timeSlider, 1000);
+                };
+                ctx.seekSong = function() {
+                    ctx.sound.currentTime = ctx.songTime;
+                    app.req('sync');
+                };
+                ctx.changeColor = function(color) {
+                    ctx.$.placeholder.style.backgroundColor = color;
+                };
+                ctx.play = function() {
+                    ctx.sound.play();
+                };
+                ctx.tap = function(e) {
+                    if (ctx.sound.played.length < 1) {
+                      ctx.sound.play();
+                    } else {
+                      app.req(e.currentTarget.id);
+                    }
 
-            ctx.set('song.title', currentSong.replace(window.location.origin + '/', ''));
-            ctx.set('song.title', ctx.song.title.replace('.mp3', ''));
-        };
-        ctx.timeSlider = function() {
-          if (ctx.$.timeSlider.pointerDown == false) {
-            ctx.set('song.time.current', sound.seek());
-          }
-          setTimeout(ctx.timeSlider,1000);
-        };
-        ctx.seekSong = function() {
-          console.log('down', ctx.song.time.current);
-          sound.seek(ctx.song.time.current);
-          app.req('sync');
-        };
-        ctx.changeColor = function(color) {
-          ctx.$.placeholder.style.backgroundColor = color;
-        };
-        ctx.play = function() {
-            ctx.changeColor('#1565c0');
-            ctx.playAndPause = 'av:pause';
-            sound.play();
-            console.log('playing');
-        };
-        ctx.tap = function(e) {
-            app.req(e.currentTarget.id);
-        };
-      }
+                };
+            }
 
-    });
-  </script>
+        });
+    </script>
 </dom-module>

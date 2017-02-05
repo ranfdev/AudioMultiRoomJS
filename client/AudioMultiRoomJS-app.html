@@ -61,69 +61,50 @@
                         dong: null,
                         delay: null
                 };
-
-
                 ctx.req = function(what) {
                       if (what == 'sync') {
-                        // time.current = sound.seek();
-                        // time.duration = sound.duration();
                         ctx.socket.emit(what + 'Req', {
-                          current: sound.seek(),
-                          duration: sound.duration()
+                          current: player.sound.currentTime,
+                          duration: player.sound.duration
                         });
-                        // console.log('req', what, data);
                     } else {
                       ctx.socket.emit(what + 'Req');
                     }
                 };
-
-
                 ctx.ding = function() {
                     ctx.time.ding = performance.now();
                     ctx.socket.emit('ding');
                 };
-
                 ctx.connect = function(address) {
+                    address = address || window.location.origin;
                     console.log('connecting to', address);
 
                     ctx.host = address;
                     ctx.socket = io.connect(address);
                     ctx.connected = true;
                     // then
-
                     ctx.socket.on('play', player.play);
                     ctx.socket.on('pause', player.pause);
                     ctx.socket.on('restart', function() {
                         location.reload();
                     });
                     ctx.socket.on('sync', function(ms) {
-                        ctx.ding();
                         player.sync(ms);
                     });
-                    ctx.socket.on('ding', ctx.ding);
                     ctx.socket.on('dong', function() {
                         ctx.time.dong = performance.now();
-                        ctx.time.delay = (ctx.time.dong - ctx.time.ding) * 1.5 / 100;
+                        ctx.time.delay = (ctx.time.dong - ctx.time.ding) * 1.5 / 1000;
                         setTimeout(ctx.ding,750);
                     });
                     ctx.socket.on('playerData', function(data) {
-                        if (typeof sound != 'undefined') {
-                            sound.stop();
-                        }
-
                         player.loadSong(ctx.host + '/' + data.current);
                         setTimeout(function() {
                           ctx.req('syncReq');
                         }, 2000);
-
                     });
-
-
+                    ctx.ding();
                 };
-
-
-            ctx.connect(window.location.origin);
-
+            ctx.connect();
             }
 
         });
