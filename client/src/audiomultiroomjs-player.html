@@ -1,24 +1,31 @@
-<link rel="import" href="/bower_components/polymer/polymer.html">
-<!-- <link rel="import" href="/bower_components/paper-toolbar/paper-toolbar.html"> -->
-<link rel="import" href="/bower_components/paper-card/paper-card.html">
-<link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="/bower_components/iron-icons/av-icons.html">
-<link rel="import" href="/bower_components/iron-icons/notification-icons.html">
-<link rel="import" href="/bower_components/app-storage/app-localstorage/app-localstorage-document.html">
-<link rel="import" href="/bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<!-- <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html"> -->
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<!-- <link rel="import" href="../bower_components/paper-button/paper-button.html"> -->
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../bower_components/iron-icons/notification-icons.html">
+<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../bower_components/paper-slider/paper-slider.html">
 <!-- <link rel="import" href="/bower_components/paper-dialog/paper-dialog.html"> -->
 <!-- <link rel="import" href="/bower_components/paper-input/paper-input.html"> -->
-<link rel="import" href="/bower_components/paper-styles/typography.html">
+<!-- <link rel="import" href="/bower_components/paper-styles/typography.html"> -->
 <dom-module id="audiomultiroomjs-player">
     <template>
-    <style>
-
+    <style include="shared-styles">
+      :host {
+        --paper-slider-active-color: var(--app-secondary-color);
+        --paper-slider-knob-color: var(--app-secondary-color);
+        --paper-slider-pin-color: var(--app-secondary-color);
+      }
       .placeholder {
         width: 100%;
         height: 200px;
-        background-color: darkGrey;
+        /*background-color: darkGrey;*/
+        /*transform: scale(0.8);*/
+        background: var(--app-primary-color);
+
         display: flex;
 
       }
@@ -49,7 +56,7 @@
 
       .placeholder {
         order: -1;
-        transition: 300ms
+
       }
 
       .player {
@@ -60,9 +67,28 @@
       paper-slider {
         width: 100%
       }
+
+      paper-card {
+        filter: saturate(0.1) ;
+        transition: 300ms;
+      }
+      :host(.active) paper-card {
+
+        filter: saturate(1) ;
+      }
+
+    paper-icon-button {
+      color: rgba(0, 0, 0, 0.87);
+    }
+
+
+
+      /*:host(.active) .title-text {
+        color: var(--app-primary-color) !important;
+      }*/
     </style>
 
-      <paper-card elevation="5" heading="[[songTitle]]" class="player">
+      <paper-card heading="[[songTitle]]" class="player">
           <div id="placeholder" class="placeholder flex center">
             <iron-icon class="white big" icon="av:library-music"></iron-icon>
           </div>
@@ -73,9 +99,7 @@
                 <paper-icon-button id="sync" on-click="tap" icon="notification:sync"></paper-icon-button>
                 <paper-icon-button id="pause" on-click="tap" icon="{{playAndPause}}"></paper-icon-button>
                 <paper-icon-button id="next" on-click="tap" icon="av:skip-next"></paper-icon-button>
-                <a href="https://github.com/ranfdev/MultiRoomJS-client">
-                 <paper-icon-button icon="code"></paper-icon-button>
-                </a>
+
               </div>
 
       </paper-card>
@@ -91,6 +115,9 @@
                 songBuffered: {
                     value: 0
                 },
+                songTitle: {
+                  value: 'Offline...'
+                },
                 connected: {
                     value: false
                 },
@@ -101,6 +128,7 @@
             ready: function() {
                 var ctx = this;
                 player = this;
+                // app.connect();
                 ctx.sound = new Audio();
                 ctx.sound.onloadeddata = function() {
                     console.log('loaded');
@@ -109,14 +137,15 @@
                     ctx.timeSlider();
                 };
                 ctx.sound.onplay = function() {
-                    ctx.changeColor('#1565c0');
                     ctx.playAndPause = 'av:pause';
-                    app.req('sync');
+                    ctx.changeColor('play');
                     console.log('playing');
+                    app.req('sync');
                 };
                 ctx.sound.onpause = function() {
-                  ctx.changeColor('darkGrey');
+
                   ctx.playAndPause = 'av:play-arrow';
+                  ctx.changeColor('pause');
                   console.log('paused');
                 };
                 ctx.pause = function() {
@@ -142,10 +171,12 @@
                     ctx.sound.currentTime = ctx.songTime;
                     app.req('sync');
                 };
-                ctx.changeColor = function(color) {
-                    ctx.$.placeholder.style.backgroundColor = color;
+                ctx.changeColor = function(condition) {
+                    // ctx.$.placeholder.style.backgroundColor = color;
+                    ctx.toggleClass('active', condition == 'play');
                 };
                 ctx.play = function() {
+                    app.time.playStart = performance.now();
                     ctx.sound.play();
                 };
                 ctx.tap = function(e) {
@@ -156,6 +187,7 @@
                     }
 
                 };
+                app.connect();
             }
 
         });

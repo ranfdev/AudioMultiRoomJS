@@ -1,8 +1,11 @@
 {
-  "name": "AudioMultiRoomJS",
-  "version": "1.0.0",
+  "name": "audiomultiroomjs",
+  "version": "1.0.1",
   "description": "Listen your music everywhere in your house",
   "main": "server.js",
+  "bin": {
+    "audiomultiroomjs": "bin/audiomultiroom.js"
+  },
   "dependencies": {
     "express": "^4.14.0",
     "open": "0.0.5",
@@ -10,13 +13,14 @@
     "socket.io": "^1.7.2"
   },
   "devDependencies": {
-    "bower": "^1.8.0"
+    "bower": "^1.8.0",
+    "polymer-cli": "^0.17.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "postinstall": "npm run build",
-    "build": "cd client/ && bower i && echo 'installed'"
+    "test": "node bin/test.js",
+    "start": "node bin/audiomultiroom.js",
+    "build": "cd client/ && polymer build && echo 'installed'",
+    "prepublish": "git checkout config.json && npm run build"
   },
   "author": "RanfDev",
   "license": "MIT"

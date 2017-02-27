@@ -1,0 +1,75 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+
+<dom-module id="audiomultiroomjs-logic">
+
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'audiomultiroomjs-logic',
+    ready: function() {
+        var ctx = this;
+        app = this;
+        ctx.time = {
+                ding: null,
+                dong: null,
+                playStart: null,
+                playEnd: null,
+                delay: null
+        };
+        ctx.req = function(what) {
+              if (what == 'sync') {
+                ctx.socket.emit(what + 'Req', {
+                  current: player.sound.currentTime,
+                  duration: player.sound.duration
+                });
+            } else {
+              ctx.socket.emit(what + 'Req');
+            }
+        };
+        ctx.ding = function() {
+            ctx.time.ding = performance.now();
+            ctx.socket.emit('ding');
+        };
+        ctx.connect = function(address) {
+            address = address || window.location.origin;
+            console.log('connecting to', address);
+
+            ctx.host = address;
+            ctx.socket = io.connect(address);
+            ctx.connected = true;
+            if (typeof player != 'undefined') {
+              // then
+              ctx.socket.on('play', function () {
+                player.play();
+              });
+              ctx.socket.on('pause', function () {
+                player.pause();
+              });
+              ctx.socket.on('restart', function() {
+                  location.reload();
+              });
+              ctx.socket.on('sync', function(ms) {
+                  player.sync(ms);
+              });
+              ctx.socket.on('dong', function() {
+                  ctx.time.dong = performance.now();
+                  ctx.time.delay = (ctx.time.dong - ctx.time.ding) * 1.5 / 1000;
+                  setTimeout(ctx.ding,2000);
+              });
+              ctx.socket.on('playerData', function(data) {
+                  player.loadSong(ctx.host + '/' + data.current);
+                  setTimeout(function() {
+                    ctx.req('syncReq');
+                  }, 2000);
+              });
+              ctx.ding();
+            }
+
+        };
+        ctx.connect();
+    }
+
+  });
+</script>
