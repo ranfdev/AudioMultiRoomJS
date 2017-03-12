@@ -1,6 +1,6 @@
 {
   "name": "audiomultiroomjs",
-  "version": "1.0.1",
+  "version": "1.0.1b",
   "description": "Listen your music everywhere in your house",
   "main": "server.js",
   "bin": {
