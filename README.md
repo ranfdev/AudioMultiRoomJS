@@ -17,7 +17,7 @@ To run the server you need:
 
 ### Install and run the server
 It's really easy, just download the latest release from [here](https://github.com/ranfdev/AudioMultiRoomJS/releases/latest).
-Then open a terminal and type `npm install downloaded-file`, where `downloaded-file` is the release you've just downloaded.
+Then open a terminal and type `npm install -g downloaded-file`, where `downloaded-file` is the release you've just downloaded.
 Now you can type `audiomultiroomjs` to start the server. You are ready to listen your music!
 
 ### Configure the server
