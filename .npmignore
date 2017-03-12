@@ -3,3 +3,4 @@ client/**
 !client/build/bundled/**
 .directory
 /build/**
+/images/**
