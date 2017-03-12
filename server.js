@@ -169,7 +169,7 @@ function onConnection(socket) {
   }
 
   function calcRemainingTime(time) {
-    if (typeof onSongFinish !== undefined) {
+    if (typeof onSongFinish != 'undefined') {
       clearTimeout(onSongFinish);
     }
     var remainingTime = (time.duration - time.current)*1000;
@@ -182,7 +182,7 @@ function onConnection(socket) {
   }
 
   function sync(ms) {
-    
+
 
       console.log('sync', ms);
       io.emit('sync', ms);
