@@ -1,3 +1,9 @@
 # Ignore node_modules and bower_components
-/node_modules/*
-/client/bower_components/*
+node_modules/**
+client/bower_components/**
+.directory
+*.tgz
+build/**
+client/build/**
+*.bak
+/images/**

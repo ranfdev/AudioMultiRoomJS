@@ -1,0 +1,15 @@
+{
+  "name": "AudioMultiRoomJS",
+  "short_name": "AudioMultiRoom",
+  "start_url": "/?homescreen=1",
+  "display": "standalone",
+  "theme_color": "#3F51B5",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "images/icon.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

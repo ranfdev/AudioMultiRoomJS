@@ -1,0 +1,195 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<!-- <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html"> -->
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<!-- <link rel="import" href="../bower_components/paper-button/paper-button.html"> -->
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../bower_components/iron-icons/notification-icons.html">
+<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../bower_components/paper-slider/paper-slider.html">
+<!-- <link rel="import" href="/bower_components/paper-dialog/paper-dialog.html"> -->
+<!-- <link rel="import" href="/bower_components/paper-input/paper-input.html"> -->
+<!-- <link rel="import" href="/bower_components/paper-styles/typography.html"> -->
+<dom-module id="audiomultiroomjs-player">
+    <template>
+    <style include="shared-styles">
+      :host {
+        --paper-slider-active-color: var(--app-secondary-color);
+        --paper-slider-knob-color: var(--app-secondary-color);
+        --paper-slider-pin-color: var(--app-secondary-color);
+      }
+      .placeholder {
+        width: 100%;
+        height: 200px;
+        /*background-color: darkGrey;*/
+        /*transform: scale(0.8);*/
+        background: var(--app-primary-color);
+
+        display: flex;
+
+      }
+      .big {
+        --iron-icon-width: 50px;
+        --iron-icon-height: 50px
+      }
+      .white {
+        color: white;
+      }
+
+      .center {
+        align-items: center;
+        align-content: center;
+        justify-content: center;
+      }
+      .sp-around {
+        align-items: space-around;
+        align-content: space-around;
+        justify-content: space-around;
+      }
+      .flex {
+        display: flex;
+      }
+      .full {
+        height: 100%;
+      }
+
+      .placeholder {
+        order: -1;
+
+      }
+
+      .player {
+        display: flex;
+        flex-direction: column;
+      }
+
+      paper-slider {
+        width: 100%
+      }
+
+      paper-card {
+        filter: saturate(0.1) ;
+        transition: 300ms;
+      }
+      :host(.active) paper-card {
+
+        filter: saturate(1) ;
+      }
+
+    paper-icon-button {
+      color: rgba(0, 0, 0, 0.87);
+    }
+
+
+
+      /*:host(.active) .title-text {
+        color: var(--app-primary-color) !important;
+      }*/
+    </style>
+
+      <paper-card heading="[[songTitle]]" class="player">
+          <div id="placeholder" class="placeholder flex center">
+            <iron-icon class="white big" icon="av:library-music"></iron-icon>
+          </div>
+            <div class="card-content">
+              <paper-slider id="timeSlider" on-change="seekSong" secondary-progress="[[songBuffered]]" pin min="0" value="{{songTime}}" max="{{songDuration}}"></paper-slider>
+            </div>
+              <div class="card-actions flex sp-around">
+                <paper-icon-button id="sync" on-click="tap" icon="notification:sync"></paper-icon-button>
+                <paper-icon-button id="pause" on-click="tap" icon="{{playAndPause}}"></paper-icon-button>
+                <paper-icon-button id="next" on-click="tap" icon="av:skip-next"></paper-icon-button>
+
+              </div>
+
+      </paper-card>
+  </template>
+    <script>
+        Polymer({
+            is: 'audiomultiroomjs-player',
+            properties: {
+                prop1: {
+                    type: String,
+                    value: 'MultiRoomJS-client-app',
+                },
+                songBuffered: {
+                    value: 0
+                },
+                songTitle: {
+                  value: 'Offline...'
+                },
+                connected: {
+                    value: false
+                },
+                playAndPause: {
+                    value: 'av:play-arrow'
+                }
+            },
+            ready: function() {
+                var ctx = this;
+                player = this;
+                // app.connect();
+                ctx.sound = new Audio();
+                ctx.sound.onloadeddata = function() {
+                    console.log('loaded');
+                    app.socket.emit('loaded');
+                    ctx.songDuration = ctx.sound.duration;
+                    ctx.timeSlider();
+                };
+                ctx.sound.onplay = function() {
+                    ctx.playAndPause = 'av:pause';
+                    ctx.changeColor('play');
+                    console.log('playing');
+                    app.req('sync');
+                };
+                ctx.sound.onpause = function() {
+
+                  ctx.playAndPause = 'av:play-arrow';
+                  ctx.changeColor('pause');
+                  console.log('paused');
+                };
+                ctx.pause = function() {
+                    ctx.sound.pause();
+                };
+                ctx.sync = function(time) {
+                    console.log('received sync', time);
+                    ctx.sound.currentTime = app.time.delay + time;
+                };
+                ctx.loadSong = function(currentSong) {
+                    ctx.sound.src = currentSong;
+                    ctx.songTitle = currentSong.replace(window.location.origin + '/', '');
+                    ctx.songTitle = ctx.songTitle.replace('.mp3', '');
+                };
+                ctx.timeSlider = function() {
+                    if (ctx.$.timeSlider.pointerDown === false) {
+                        ctx.songTime = ctx.sound.currentTime;
+                        ctx.songBuffered = ctx.sound.buffered.end(0);
+                    }
+                    setTimeout(ctx.timeSlider, 1000);
+                };
+                ctx.seekSong = function() {
+                    ctx.sound.currentTime = ctx.songTime;
+                    app.req('sync');
+                };
+                ctx.changeColor = function(condition) {
+                    // ctx.$.placeholder.style.backgroundColor = color;
+                    ctx.toggleClass('active', condition == 'play');
+                };
+                ctx.play = function() {
+                    app.time.playStart = performance.now();
+                    ctx.sound.play();
+                };
+                ctx.tap = function(e) {
+                    if (ctx.sound.played.length < 1) {
+                      ctx.sound.play();
+                    } else {
+                      app.req(e.currentTarget.id);
+                    }
+
+                };
+                app.connect();
+            }
+
+        });
+    </script>
+</dom-module>

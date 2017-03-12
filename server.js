@@ -14,7 +14,14 @@ config = require('./config.json');
 
 // Define some functions
 
-function loadFolder() {
+function loadClientFolder(path) {
+  // Set client folder as static resource
+  app.use(express.static(path));
+  openClient();
+
+}
+
+function loadMusicFolder() {
   // Set musicFolder as static resource
   console.log('LOADING FOLDER', config.musicFolder);
   app.use(express.static(config.musicFolder));
@@ -48,34 +55,19 @@ function saveConfig(data) {
 function openClient() {
   // Use music folder and play music if the folder is available
   if (config.musicFolder != 'your-music-folder') {
-    loadFolder();
+    loadMusicFolder();
     // Open player page
-    opener('http://localhost:' + config.serverPort + '/#/my-view1');
+    opener('http://localhost:' + config.serverPort);
   } else {
     // Open settings page
-    opener('http://localhost:' + config.serverPort + '/#/my-view2');
+    opener('http://localhost:' + config.serverPort + '#/view2');
   }
 }
 
 
 
-
-
-
-
-// Set client folder as static resource
-app.use(express.static('client'));
-loadFolder();
-openClient();
-
-
 io.on('connection', onConnection);
 
-// Set some variables
-var player;
-var ready;
-
-loadSongList();
 
 // Listen for connection
 function onConnection(socket) {
@@ -107,7 +99,7 @@ function onConnection(socket) {
   });
   socket.on('config', function (data) {
     saveConfig(data);
-    loadFolder();
+    loadMusicFolder();
     sendSong();
   });
   socket.on('pauseReq', function() {
@@ -121,16 +113,16 @@ function onConnection(socket) {
   });
   // Code to be executed when a client finished loading a song
   socket.on('loaded', function() {
-      ready++;
-      console.log('ready', ready, 'of', io.sockets.server.eio.clientsCount);
+      // ready++;
+      // console.log('ready', ready, 'of', io.sockets.server.eio.clientsCount);
       // Check if all clients are ready
-      if (ready == io.sockets.server.eio.clientsCount) {
+      // if (ready == io.sockets.server.eio.clientsCount) {
         // Reset the ready variable
-        ready = 0;
+        // ready = 0;
           console.log('started all perfectly');
           // Finally play the song
           play();
-      }
+      // }
   });
 
 
@@ -155,7 +147,10 @@ function onConnection(socket) {
   function pause() {
     io.emit('pause');
     player.status = 'paused';
-    clearTimeout(onSongFinish);
+    if (typeof onSongFinish != 'undefined') {
+      clearTimeout(onSongFinish);
+    }
+
     console.log(player.status);
   }
 
@@ -178,19 +173,44 @@ function onConnection(socket) {
       clearTimeout(onSongFinish);
     }
     var remainingTime = (time.duration - time.current)*1000;
-    onSongFinish = setTimeout(sendSong,remainingTime);
-    console.log('NEXT SONG IN ' + remainingTime/1000 + 's');
+    if (remainingTime > 0) {
+      onSongFinish = setTimeout(sendSong,remainingTime);
+      console.log('NEXT SONG IN ' + remainingTime/1000 + 's');
+    } else {
+      return 0;
+    }
   }
 
   function sync(ms) {
-    console.log('sync', ms);
-    io.emit('sync', ms);
+    
+
+      console.log('sync', ms);
+      io.emit('sync', ms);
+
+
   }
 
 
 }
 
+function start(mode) {
+  // var mode = mode || 'production';
+  // Set some variables
+  var player;
+  var ready;
+  if (mode == 'debug') {
+    loadClientFolder('client');
+    console.log('started as debug');
+  } else {
+    loadClientFolder('client/build/bundled/');
+  }
 
-// Listen on the port described in the config.json
-server.listen(config.serverPort);
-console.log('started at :', config.serverPort);
+
+  // loadMusicFolder();
+  // loadSongList();
+  // Listen on the port described in the config.json
+  server.listen(config.serverPort);
+  console.log('started at :', config.serverPort);
+
+}
+exports.start = start;
