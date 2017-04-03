@@ -116,7 +116,7 @@
                     value: 0
                 },
                 songTitle: {
-                  value: 'Offline...'
+                    value: 'Offline...'
                 },
                 connected: {
                     value: false
@@ -144,16 +144,29 @@
                 };
                 ctx.sound.onpause = function() {
 
-                  ctx.playAndPause = 'av:play-arrow';
-                  ctx.changeColor('pause');
-                  console.log('paused');
+                    ctx.playAndPause = 'av:play-arrow';
+                    ctx.changeColor('pause');
+                    console.log('paused');
                 };
+
                 ctx.pause = function() {
                     ctx.sound.pause();
                 };
                 ctx.sync = function(time) {
                     console.log('received sync', time);
+                    app.time.syncReceived = performance.now();
+                    function onSeeked() {
+                      console.log('lit playing');
+                      app.time.playing = performance.now();
+                      var playdelay = (app.time.syncReceived - app.time.playing)/1000;
+                      ctx.sound.currentTime += playdelay*2;
+                      ctx.sound.removeEventListener('seeked', onSeeked);
+                    }
+                    ctx.sound.addEventListener('seeked', onSeeked);
                     ctx.sound.currentTime = app.time.delay + time;
+
+
+
                 };
                 ctx.loadSong = function(currentSong) {
                     ctx.sound.src = currentSong;
@@ -181,9 +194,9 @@
                 };
                 ctx.tap = function(e) {
                     if (ctx.sound.played.length < 1) {
-                      ctx.sound.play();
+                        ctx.sound.play();
                     } else {
-                      app.req(e.currentTarget.id);
+                        app.req(e.currentTarget.id);
                     }
 
                 };

@@ -111,19 +111,7 @@ function onConnection(socket) {
       }
 
   });
-  // Code to be executed when a client finished loading a song
-  socket.on('loaded', function() {
-      // ready++;
-      // console.log('ready', ready, 'of', io.sockets.server.eio.clientsCount);
-      // Check if all clients are ready
-      // if (ready == io.sockets.server.eio.clientsCount) {
-        // Reset the ready variable
-        // ready = 0;
-          console.log('started all perfectly');
-          // Finally play the song
-          play();
-      // }
-  });
+  
 
 
   function ding() {
