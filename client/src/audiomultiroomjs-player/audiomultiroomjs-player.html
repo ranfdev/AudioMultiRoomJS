@@ -1,0 +1,309 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<dom-module id="audiomultiroomjs-player">
+  <template>
+    <style>
+       :host {
+        display: flex;
+        --color: blue;
+        --ease: cubic-bezier(0.4, 0.0, 0.2, 1);
+        flex-direction: column;
+      }
+      
+      .player {
+        width: 100%;
+        height: 100%;
+        display: flex;
+      }
+      
+      .image {
+        flex: 0 0 50%;
+        background-color: var(--color);
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        color: white;
+        box-shadow: 0 3px 16px rgba(0, 0, 0, 0.3);
+        transition: box-shadow 300ms var(--ease), flex 300ms 750ms, background-color 300ms 300ms;
+        z-index: 4;
+        position: relative;
+      }
+      
+      .header {
+        width: 100%;
+        height: 56px;
+        position: absolute;
+        top: 0;
+        z-index: 99
+      }
+      
+      .header>* {
+        padding: 15px;
+        margin: 0;
+        display: inline-block;
+      }
+      
+      .image:hover {
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+      }
+      
+      .controls .content {
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+        background-color: white;
+        height: 15vh;
+        transition: box-shadow 300ms var(--ease);
+        transform-origin: top;
+        transition: transform 300ms;
+        display: flex;
+        align-items: center
+      }
+      
+      .controls .content:hover {
+        box-shadow: 0 5px 16px rgba(0, 0, 0, 0.3);
+      }
+      
+      .controls .actions {
+        padding: 20px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        height: 100%
+      }
+      
+      .actions paper-icon-button {
+        width: 12vw;
+        height: 12vw;
+      }
+      
+      .image iron-icon {
+        position: absolute;
+        --iron-icon-width: 25%;
+        --iron-icon-height: 25%;
+        opacity: 1;
+        transition: opacity 300ms 750ms var(--ease);
+      }
+      
+      .image.active iron-icon {
+        transition: opacity 300ms var(--ease);
+        opacity: 0;
+      }
+      
+      .image.active {
+        flex: 0 0 100%;
+        transition: box-shadow 300ms var(--ease), flex 300ms, background-color 300ms 300ms var(--ease);
+        background-color: white;
+      }
+      .w50 {
+        flex: 0 0 50%
+      }
+      /*.image #settings {
+      transition: color 300ms 300ms var(--ease);
+    }
+    .image.active #settings {
+      color: black
+    }*/
+      
+      .settings {
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        transition: opacity 300ms var(--ease), transform 300ms var(--ease);
+        color: black;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        background-color: white;
+        transform: translateY(-100vh);
+      }
+      
+      .settings>* {
+        width: 100%;
+      }
+      
+      .settings p {
+        margin: 0
+      }
+      
+      .settings.active {
+        opacity: 1;
+        transform: translateY(0);
+        z-index: 9999
+      }
+      
+      .circle {
+        border-radius: 50%;
+        width: 20vw;
+        height: 20vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+        transition: box-shadow 300ms var(--ease);
+        background-color: var(--color);
+      }
+      
+      .circle:hover {
+        box-shadow: 0 7px 16px rgba(0, 0, 0, 0.3);
+      }
+      
+      .circle paper-icon-button {
+        transition: transform 300ms var(--ease), opacity 300ms var(--ease);
+        opacity: 1;
+        position: absolute;
+      }
+      
+      .circle paper-icon-button:nth-child(2) {
+        opacity: 0;
+      }
+      
+      .circle.active paper-icon-button:nth-child(1) {
+        transform: rotateZ(360deg);
+        opacity: 0
+      }
+      
+      .circle.active paper-icon-button:nth-child(2) {
+        transform: rotateZ(360deg);
+        opacity: 1
+      }
+      
+      .controls {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+      }
+      
+      a {
+        color: white;
+        text-decoration: none;
+      }
+      .title {
+        position: relative
+      }
+      /*
+      .title h3 {
+        display: block
+      }
+      .title paper-input {
+        display: none
+      }
+      .content #save {
+        display: none
+      }
+      .content #edit {
+        display: block
+      }
+      .content.editing h3 {
+        display: none
+      }
+      .content.editing paper-input {
+        display: block
+      }
+      .content.editing #save {
+        display: block
+      }
+      .content.editing #edit {
+        display: none
+      }*/
+      .content .title {
+        transform: translateX(0px);
+        transition: transform 300ms;
+      }
+      .content.editing .title {
+        transform: translateX(100%)
+      }
+      .content .edit {
+        transition: transform 300ms;
+        transform: translateX(-100%)
+      }
+      .content.editing .edit {
+        transform: translateX(0px)
+      }
+      .content > * {
+        display: flex;
+        width: 100%;
+        justify-content: space-around;
+        flex: 0 0 100%;
+        align-items: center;
+        position: absolute
+      }
+      /*#next {
+      transition: transform 5000ms;
+    }
+    #next:active {
+      transform: translateX(10px);
+    }
+    #sync {
+      transition: transform 5000ms;
+    }
+    #sync:target {
+      transform: rotateZ(-180deg)
+    }*/
+      
+      @media (min-width: 720px) {
+        :host {
+          flex-direction: row;
+        }
+        .actions paper-icon-button {
+          width: 4vw;
+          height: 4vw
+        }
+        .circle {
+          width: 10vw;
+          height: 10vw
+        }
+        .content > * {
+          width: 50%
+        }
+      }
+    </style>
+    <div class="header">
+      <a  id="settings">
+        <paper-icon-button icon="settings"></paper-icon-button>
+      </a>
+    </div>
+    <div class="w50 image">
+
+      <iron-icon icon="image:audiotrack"></iron-icon>
+      <div class="settings" id="settings">
+        <p>Here you can modify the folder where you have all of your music. The folder must contain only music files and nothing
+          different</p>
+        <paper-input id="folderInput" label="music folder"></paper-input>
+        <paper-icon-button icon="check" id="saveConfig"></paper-icon-button>
+      </div>
+    </div>
+    <div class="w50 controls">
+      <div class="content">
+        <div class="title">
+
+          <h3>[[song]]</h3>
+<paper-icon-button id="edit" icon="create"></paper-icon-button>
+          
+        </div>
+        <div class="edit">
+          <paper-input id="songInput" label="{{song}}"></paper-input>
+        <paper-icon-button id="save" icon="check"></paper-icon-button>
+        </div>
+        
+      </div>
+      <div class="actions">
+        <paper-icon-button noink id="sync" icon="av:av-timer"></paper-icon-button>
+        <div class="circle">
+          <paper-icon-button noink icon="av:play-arrow"></paper-icon-button>
+          <paper-icon-button noink icon="av:pause"></paper-icon-button>
+        </div>
+        <paper-icon-button noink id="next" icon="av:skip-next"></paper-icon-button>
+
+      </div>
+    </div>
+  </template>
+</dom-module>
+<script src="audiomultiroomjs-player.js" charset="utf-8"></script>

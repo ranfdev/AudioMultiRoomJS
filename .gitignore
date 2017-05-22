@@ -7,3 +7,4 @@ build/**
 client/build/**
 *.bak
 /images/**
+.vscode
